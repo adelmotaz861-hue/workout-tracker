@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Training Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1612;
+    --bg-2: #211c17;
+    --surface: #2a231c;
+    --surface-2: #332a22;
+    --line: #3d3228;
+    --line-soft: rgba(232, 220, 200, 0.08);
+    --cream: #f0e6d2;
+    --cream-soft: #d9cdb5;
+    --cream-mute: #8a8070;
+    --gold: #c9a961;
+    --gold-soft: #b89651;
+    --rust: #b8623e;
+    --green: #7a8c5a;
+    --serif: 'Fraunces', Georgia, serif;
+    --serif-italic: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--serif);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: 
+      radial-gradient(ellipse at 20% 10%, rgba(201, 169, 97, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(184, 98, 62, 0.04) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.025; pointer-events: none; z-index: 0;
+  }
+
+  .container { max-width: 1080px; margin: 0 auto; padding: 48px 32px 80px; position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding-bottom: 36px; border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 48px; flex-wrap: wrap; gap: 20px;
+  }
+
+  .brand-eyebrow {
+    font-family: var(--sans); font-size: 10px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--gold); font-weight: 400;
+    margin-bottom: 6px;
+  }
+
+  .brand-title {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(40px, 6vw, 72px); line-height: 0.95;
+    letter-spacing: -2px; color: var(--cream);
+  }
+
+  .brand-title em {
+    font-family: var(--serif-italic); font-style: italic;
+    font-weight: 400; color: var(--gold);
+  }
+
+  .meta-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+  .meta-date { font-family: var(--serif-italic); font-style: italic; font-size: 18px; color: var(--cream-soft); }
+  .meta-num { font-family: var(--sans); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--cream-mute); }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-family: var(--sans); font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--cream-mute);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+
+  /* WEEK NAV */
+  .week-nav {
+    display: flex; align-items: baseline; gap: 24px;
+    margin-bottom: 40px; flex-wrap: wrap;
+  }
+
+  .week-pill {
+    background: none; border: none; cursor: pointer; padding: 0;
+    font-family: var(--serif); font-weight: 300; font-size: 28px;
+    color: var(--cream-mute); letter-spacing: -0.5px; position: relative;
+    transition: color 0.3s ease;
+  }
+  .week-pill:hover { color: var(--cream-soft); }
+  .week-pill.active {
+    color: var(--cream);
+    font-family: var(--serif-italic); font-style: italic; font-weight: 400;
+  }
+  .week-pill.active::after {
+    content: ''; position: absolute; left: 50%; bottom: -8px;
+    width: 6px; height: 6px; background: var(--gold);
+    border-radius: 50%; transform: translateX(-50%);
+  }
+
+  .add-week {
+    background: none; border: 1px solid var(--line); color: var(--cream-mute);
+    font-family: var(--sans); font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; padding: 8px 16px; border-radius: 100px;
+    cursor: pointer; transition: all 0.3s ease; margin-left: auto;
+  }
+  .add-week:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* DAY CHIPS */
+  .day-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 48px; }
+
+  .day-chip {
+    background: var(--bg-2); border: 1px solid var(--line-soft);
+    border-radius: 4px; padding: 18px 12px; cursor: pointer;
+    transition: all 0.3s ease; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .day-chip:hover { border-color: var(--gold-soft); }
+  .day-chip.active { background: var(--surface); border-color: var(--gold); }
+  .day-chip.active::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--gold);
+  }
+  /* Rest days now fully accessible - subtle visual differentiation only */
+  .day-chip.rest .chip-label { color: var(--green); opacity: 0.7; }
+  .day-chip.rest.active .chip-label { color: var(--gold); opacity: 1; }
+  
+  /* Indicator dot when a class is booked for a day */
+  .day-chip .booked-dot {
+    position: absolute;
+    bottom: 6px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+
+  /* Cleaner sans-serif day labels */
+  .chip-num {
+    font-family: var(--sans); font-weight: 500; font-size: 18px;
+    line-height: 1; color: var(--cream); margin-bottom: 6px;
+    letter-spacing: 0;
+  }
+  .day-chip.active .chip-num { color: var(--gold); font-weight: 600; }
+  .chip-label {
+    font-family: var(--sans); font-size: 9px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--cream-mute);
+  }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px; background: var(--line-soft);
+    border: 1px solid var(--line-soft); margin-bottom: 48px;
+  }
+  .stat { background: var(--bg); padding: 28px 24px; text-align: left; }
+  .stat-eyebrow {
+    font-family: var(--sans); font-size: 9px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--cream-mute); margin-bottom: 14px;
+  }
+  /* Cleaner numeric typography */
+  .stat-value {
+    font-family: var(--sans); font-weight: 300; font-size: 38px;
+    line-height: 1; color: var(--cream);
+    letter-spacing: -1px;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .stat-value .divider { color: var(--cream-mute); font-weight: 200; margin: 0 2px; }
+  .stat-value.highlight { color: var(--gold); font-weight: 400; }
+  .stat-unit {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 15px; color: var(--cream-mute); margin-left: 6px;
+    font-weight: 400;
+  }
+  .stat-foot {
+    font-family: var(--serif-italic); font-style: italic; font-size: 13px;
+    color: var(--cream-mute); margin-top: 10px;
+  }
+
+  /* CLASS PANEL */
+  .class-panel {
+    background: var(--bg-2); border: 1px solid var(--line-soft);
+    padding: 28px 32px; margin-bottom: 48px;
+  }
+
+  .class-panel-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+
+  .class-panel-head h3 {
+    font-family: var(--serif); font-weight: 300; font-size: 24px;
+    letter-spacing: -0.5px;
+  }
+  .class-panel-head h3 em {
+    font-family: var(--serif-italic); font-style: italic; color: var(--gold);
+  }
+
+  .class-panel-toggle {
+    background: none; border: 1px solid var(--line); color: var(--cream-soft);
+    font-family: var(--sans); font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; padding: 6px 14px; border-radius: 100px;
+    cursor: pointer; transition: all 0.3s ease;
+  }
+  .class-panel-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+  .selected-class {
+    background: rgba(201, 169, 97, 0.08);
+    border: 1px solid rgba(201, 169, 97, 0.3);
+    border-radius: 4px;
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+
+  .selected-class.empty {
+    background: transparent;
+    border: 1px dashed var(--line);
+  }
+
+  .selected-class-info {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+
+  .selected-class-name {
+    font-family: var(--serif); font-size: 19px; color: var(--cream);
+    font-weight: 400;
+  }
+
+  .selected-class-time {
+    font-family: var(--sans); font-size: 11px; letter-spacing: 1.5px;
+    color: var(--gold); font-weight: 600;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  .selected-class-coach {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 13px; color: var(--cream-mute);
+  }
+
+  .selected-class-empty-text {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 14px; color: var(--cream-mute);
+  }
+
+  .clear-class {
+    background: none; border: none; color: var(--rust);
+    font-family: var(--sans); font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; cursor: pointer; padding: 4px 8px;
+    transition: opacity 0.2s; font-weight: 500;
+  }
+  .clear-class:hover { opacity: 0.7; }
+
+  /* CLASS GRID */
+  .class-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px; margin-top: 18px;
+    max-height: 460px; overflow-y: auto;
+    padding: 4px;
+  }
+  .class-grid.show { display: grid; }
+
+  .class-card {
+    background: var(--bg); border: 1px solid var(--line-soft);
+    border-radius: 4px; padding: 14px 16px; cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .class-card:hover {
+    border-color: var(--gold);
+    background: var(--surface);
+  }
+  .class-card.selected {
+    border-color: var(--gold);
+    background: rgba(201, 169, 97, 0.08);
+  }
+
+  .class-card-time {
+    font-family: var(--sans); font-size: 10px; letter-spacing: 1.5px;
+    color: var(--gold); font-weight: 600;
+    font-feature-settings: 'tnum' 1;
+  }
+  .class-card-name {
+    font-family: var(--serif); font-size: 16px; color: var(--cream);
+    font-weight: 400;
+  }
+  .class-card-coach {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 12px; color: var(--cream-mute);
+  }
+  .class-card-type {
+    display: inline-block; font-family: var(--sans); font-size: 8px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 2px; margin-top: 4px;
+    align-self: flex-start; font-weight: 600;
+  }
+  .type-cardio { background: rgba(245, 200, 100, 0.15); color: #e8b94f; }
+  .type-strength { background: rgba(200, 100, 100, 0.15); color: #d97a7a; }
+  .type-recovery { background: rgba(122, 140, 90, 0.2); color: var(--green); }
+  .type-flow { background: rgba(122, 160, 200, 0.15); color: #8db4d4; }
+
+  /* BODYWEIGHT PANEL */
+  .bw-panel {
+    background: var(--bg-2); border: 1px solid var(--line-soft);
+    padding: 32px; margin-bottom: 48px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 40px; align-items: center;
+  }
+  @media (max-width: 700px) { .bw-panel { grid-template-columns: 1fr; gap: 24px; } }
+
+  .bw-left h3 {
+    font-family: var(--serif); font-weight: 300; font-size: 24px;
+    letter-spacing: -0.5px; margin-bottom: 4px;
+  }
+  .bw-left h3 em { font-family: var(--serif-italic); font-style: italic; color: var(--gold); }
+  .bw-left p { font-family: var(--serif-italic); font-style: italic; color: var(--cream-mute); font-size: 14px; }
+  .bw-history { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; }
+  .bw-entry { display: flex; flex-direction: column; align-items: flex-start; }
+  .bw-entry-day { font-family: var(--sans); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream-mute); }
+  .bw-entry-val {
+    font-family: var(--sans); font-weight: 400; font-size: 18px;
+    color: var(--cream); font-feature-settings: 'tnum' 1;
+  }
+  .bw-entry-unit { font-family: var(--serif-italic); font-style: italic; font-size: 11px; color: var(--cream-mute); margin-left: 2px; }
+
+  .bw-form { display: flex; align-items: stretch; gap: 12px; }
+  .bw-input {
+    flex: 1; background: transparent; border: none;
+    border-bottom: 1px solid var(--line); color: var(--cream);
+    font-family: var(--sans); font-weight: 300; font-size: 28px;
+    padding: 8px 4px; outline: none; transition: border-color 0.3s ease;
+    letter-spacing: -0.5px;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .bw-input:focus { border-color: var(--gold); }
+  .bw-input::placeholder { color: var(--cream-mute); font-style: italic; font-family: var(--serif-italic); }
+
+  .btn-primary {
+    background: var(--gold); color: var(--bg); border: none;
+    font-family: var(--sans); font-size: 11px; letter-spacing: 2.5px;
+    text-transform: uppercase; padding: 0 28px; cursor: pointer;
+    transition: all 0.3s ease; font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--cream); }
+
+  .btn-ghost {
+    background: transparent; color: var(--cream); border: 1px solid var(--line);
+    font-family: var(--sans); font-size: 11px; letter-spacing: 2.5px;
+    text-transform: uppercase; padding: 14px 32px; cursor: pointer;
+    transition: all 0.3s ease; font-weight: 500;
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* SESSION CARD */
+  .session { background: var(--bg-2); border: 1px solid var(--line-soft); }
+
+  .session-head {
+    padding: 40px 40px 32px; border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: flex-start; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .session-head-left h2 {
+    font-family: var(--serif); font-weight: 300; font-size: 42px;
+    line-height: 1; letter-spacing: -1.5px; margin-bottom: 8px;
+  }
+  .session-head-left h2 em { font-family: var(--serif-italic); font-style: italic; color: var(--gold); font-weight: 400; }
+  .session-head-left .focus-line { font-family: var(--serif-italic); font-style: italic; font-size: 18px; color: var(--cream-soft); }
+
+  .session-head-right { text-align: right; }
+  .session-head-right .num-large {
+    font-family: var(--sans); font-weight: 300; font-size: 44px;
+    line-height: 1; color: var(--gold); letter-spacing: -1px;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .session-head-right .num-large .total { color: var(--cream-mute); font-size: 26px; font-weight: 200; }
+  .session-head-right .num-label {
+    font-family: var(--sans); font-size: 9px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--cream-mute); margin-top: 6px;
+  }
+
+  /* exercise rows */
+  .exercise-list { padding: 16px 0; }
+
+  .exercise {
+    padding: 24px 40px;
+    display: grid; grid-template-columns: 36px 1fr auto auto;
+    gap: 24px; align-items: center;
+    border-bottom: 1px solid var(--line-soft);
+    transition: background 0.2s ease;
+  }
+  .exercise:last-child { border-bottom: none; }
+  .exercise:hover { background: rgba(232, 220, 200, 0.02); }
+
+  /* Cleaner numbered exercises */
+  .ex-num {
+    font-family: var(--sans); font-size: 13px;
+    color: var(--gold); font-weight: 500;
+    letter-spacing: 1px; font-feature-settings: 'tnum' 1;
+  }
+
+  .ex-info h4 {
+    font-family: var(--serif); font-weight: 400; font-size: 20px;
+    color: var(--cream); letter-spacing: -0.3px; margin-bottom: 4px;
+  }
+  .ex-info .ex-prescription {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 13px; color: var(--cream-mute);
+  }
+
+  .ex-prev { text-align: right; min-width: 110px; }
+  .ex-prev-label {
+    font-family: var(--sans); font-size: 8px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--cream-mute); margin-bottom: 4px;
+  }
+  .ex-prev-val {
+    font-family: var(--sans); font-size: 14px; color: var(--cream-soft);
+    font-weight: 400; font-feature-settings: 'tnum' 1;
+  }
+
+  .delta {
+    display: inline-block; font-family: var(--sans);
+    font-size: 9px; padding: 2px 6px; border-radius: 2px;
+    margin-left: 4px; letter-spacing: 0.5px; font-weight: 600;
+  }
+  .delta-up { background: rgba(122, 140, 90, 0.2); color: var(--green); }
+  .delta-down { background: rgba(184, 98, 62, 0.2); color: var(--rust); }
+  .delta-same { background: rgba(138, 128, 112, 0.15); color: var(--cream-mute); }
+
+  .ex-input-wrap { position: relative; display: flex; align-items: baseline; }
+  .ex-input {
+    background: transparent; border: none;
+    border-bottom: 1px solid var(--line); color: var(--cream);
+    font-family: var(--sans); font-weight: 300; font-size: 28px;
+    padding: 4px 8px; outline: none; width: 100px; text-align: right;
+    transition: all 0.3s ease; letter-spacing: -0.5px;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .ex-input:focus { border-color: var(--gold); }
+  .ex-input.has-value {
+    color: var(--gold); font-weight: 500; border-color: var(--gold-soft);
+  }
+  .ex-input::placeholder {
+    color: var(--cream-mute); font-family: var(--serif-italic);
+    font-style: italic; font-size: 22px;
+  }
+  .ex-input::-webkit-outer-spin-button,
+  .ex-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .ex-unit {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 14px; color: var(--cream-mute); margin-left: 6px;
+  }
+
+  .session-foot {
+    padding: 28px 40px; border-top: 1px solid var(--line-soft);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .session-foot-quote {
+    font-family: var(--serif-italic); font-style: italic;
+    color: var(--cream-mute); font-size: 14px; max-width: 60%;
+  }
+
+  /* rest day - now class-friendly */
+  .rest-page {
+    background: var(--bg-2); border: 1px solid var(--line-soft);
+    padding: 60px 40px; text-align: center;
+  }
+  .rest-page .ornament {
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 42px; color: var(--gold); margin-bottom: 20px; line-height: 1;
+  }
+  .rest-page h2 {
+    font-family: var(--serif); font-weight: 300; font-size: 40px;
+    letter-spacing: -1.5px; margin-bottom: 12px;
+  }
+  .rest-page h2 em { font-family: var(--serif-italic); font-style: italic; color: var(--gold); }
+  .rest-page p {
+    font-family: var(--serif-italic); font-style: italic; font-size: 17px;
+    color: var(--cream-mute); max-width: 520px; margin: 0 auto 24px; line-height: 1.6;
+  }
+  .rest-page .booked-hint {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 10px 20px;
+    background: rgba(201, 169, 97, 0.08);
+    border: 1px solid rgba(201, 169, 97, 0.25);
+    border-radius: 4px;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--cream-soft);
+    font-size: 14px;
+  }
+  .rest-page .booked-hint strong {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translate(-50%, 100px);
+    background: var(--cream); color: var(--bg);
+    font-family: var(--serif-italic); font-style: italic;
+    font-size: 16px; padding: 14px 32px; border-radius: 2px;
+    opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100; box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .page-footer {
+    margin-top: 80px; padding-top: 32px;
+    border-top: 1px solid var(--line-soft); text-align: center;
+    font-family: var(--serif-italic); font-style: italic;
+    color: var(--cream-mute); font-size: 13px;
+  }
+
+  /* responsive */
+  @media (max-width: 720px) {
+    .container { padding: 32px 20px 60px; }
+    .day-row { grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .day-chip { padding: 12px 4px; }
+    .chip-num { font-size: 14px; }
+    .chip-label { font-size: 7px; letter-spacing: 1px; }
+    .session-head { padding: 28px 24px 24px; }
+    .session-head-left h2 { font-size: 30px; }
+    .session-head-right .num-large { font-size: 32px; }
+    .session-head-right .num-large .total { font-size: 20px; }
+    .exercise { padding: 20px 24px; grid-template-columns: 28px 1fr auto; gap: 12px; }
+    .ex-prev { display: none; }
+    .ex-info h4 { font-size: 16px; }
+    .ex-input { font-size: 22px; width: 76px; }
+    .ex-input::placeholder { font-size: 18px; }
+    .session-foot { padding: 20px 24px; }
+    .session-foot-quote { display: none; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-value { font-size: 28px; }
+    .week-pill { font-size: 22px; }
+    .add-week { margin-left: 0; }
+    .class-grid { grid-template-columns: 1fr; }
+    .class-panel { padding: 20px; }
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-soft); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div class="brand-eyebrow">No. 1 — Personal Training Journal</div>
+      <h1 class="brand-title">Atelier <em>du Corps</em></h1>
+    </div>
+    <div class="meta-stack">
+      <div class="meta-date" id="todayDate"></div>
+      <div class="meta-num" id="weekMeta">—</div>
+    </div>
+  </header>
+
+  <div class="section-label">Mesocycle</div>
+  <div class="week-nav" id="weekNav"></div>
+
+  <div class="section-label">The Week</div>
+  <div class="day-row" id="dayRow"></div>
+
+  <div class="section-label">At a Glance</div>
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <div class="section-label">Group Class — Healthy Steps</div>
+  <div class="class-panel">
+    <div class="class-panel-head">
+      <h3>Today's <em>class</em></h3>
+      <button class="class-panel-toggle" id="classToggle" onclick="toggleClassGrid()">Browse Classes</button>
+    </div>
+    <div id="selectedClassDisplay"></div>
+    <div class="class-grid" id="classGrid"></div>
+  </div>
+
+  <div class="section-label">Body Composition</div>
+  <div class="bw-panel">
+    <div class="bw-left">
+      <h3>Daily <em>weigh-in</em></h3>
+      <p>Track your bodyweight throughout the week</p>
+      <div class="bw-history" id="bwHistory"></div>
+    </div>
+    <div class="bw-right">
+      <div class="bw-form">
+        <input class="bw-input" type="number" step="0.1" placeholder="kg" id="bwInput">
+        <button class="btn-primary" onclick="logBodyweight()">Record</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Today's Session</div>
+  <div id="sessionContent"></div>
+
+  <div class="page-footer">— bound by sweat, written in iron —</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// PROGRAM
+// ═══════════════════════════════════════════════════════════
+const PROGRAM = {
+  1: { label: 'Sunday', focus: 'Rest', exercises: [] },
+  2: {
+    label: 'Monday', focus: 'Lower Body — Glutes',
+    quote: 'The strength of a temple lies in its foundation.',
+    exercises: [
+      { name: 'Leg Press', detail: 'High Foot Position', sets: 2, reps: '4–6' },
+      { name: 'Hip Thrust', detail: 'Barbell, paused', sets: 2, reps: '4–6' },
+      { name: 'Romanian Deadlift', detail: 'Controlled eccentric', sets: 2, reps: '4–6' },
+      { name: 'Bulgarian Split Squat', detail: 'Per leg', sets: 2, reps: '4–6/leg' },
+      { name: 'Glute Kickback', detail: 'Cable, per leg', sets: 2, reps: '4–6/leg' },
+      { name: 'Hip Abduction', detail: 'Machine, full range', sets: 2, reps: '6–10' },
+      { name: 'Standing Calf Raise', detail: 'Slow tempo', sets: 2, reps: '6–8' },
+    ]
+  },
+  3: {
+    label: 'Tuesday', focus: 'Upper Body',
+    quote: 'A line drawn from shoulder to fingertip.',
+    exercises: [
+      { name: 'Chest Press', detail: 'Machine, controlled', sets: 3, reps: '10–12' },
+      { name: 'Lat Pulldown', detail: 'Wide grip', sets: 3, reps: '10–12' },
+      { name: 'Kelso Shrugs', detail: 'Scapular focus', sets: 3, reps: '10–12' },
+      { name: 'Shoulder Press', detail: 'Seated', sets: 3, reps: '10–12' },
+      { name: 'Lateral Raise', detail: 'Strict form', sets: 3, reps: '12–15' },
+      { name: 'Bicep Curl', detail: 'Standing', sets: '2–3', reps: '10–12' },
+      { name: 'Tricep Pushdown', detail: 'Cable', sets: '2–3', reps: '10–12' },
+    ]
+  },
+  4: {
+    label: 'Wednesday', focus: 'Lower Body',
+    quote: 'Repetition is the mother of mastery.',
+    exercises: [
+      { name: 'Leg Press', detail: 'Standard stance', sets: 2, reps: '4–6' },
+      { name: 'Leg Extension', detail: 'Quad isolation', sets: 2, reps: '4–6' },
+      { name: 'Leg Curl', detail: 'Seated or lying', sets: 2, reps: '4–6' },
+      { name: 'Hip Thrust', detail: 'Barbell', sets: 2, reps: '4–6' },
+      { name: 'Walking Lunges', detail: 'Per leg', sets: 2, reps: '6–8/leg' },
+      { name: 'Hip Adduction', detail: 'Machine', sets: 2, reps: '6–10' },
+    ]
+  },
+  5: { label: 'Thursday', focus: 'Rest', exercises: [] },
+  6: { label: 'Friday', focus: 'Rest', exercises: [] },
+  7: { label: 'Saturday', focus: 'Rest', exercises: [] },
+};
+
+// ═══════════════════════════════════════════════════════════
+// HEALTHY STEPS CLASS SCHEDULE
+// 1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat
+// ═══════════════════════════════════════════════════════════
+const CLASS_SCHEDULE = {
+  1: [ // Sunday — الأحد
+    // ─── Morning / Afternoon (Image 1) ───
+    { time: '7:30 AM', name: 'Cardio', coach: 'Areej', type: 'cardio' },
+    { time: '8:30 AM', name: 'ABS', coach: 'Areej', type: 'strength' },
+    { time: '9:30 AM', name: 'Full Body', coach: 'Areej', type: 'strength' },
+    { time: '12:00 PM', name: 'Upper Body (علوي)', coach: 'Shaimaa', type: 'strength' },
+    { time: '1:00 PM', name: 'Aerobic', coach: 'Areej', type: 'cardio' },
+    { time: '2:00 PM', name: 'Cardio', coach: 'Shaimaa', type: 'cardio' },
+    { time: '3:00 PM', name: 'Full Body', coach: 'Nesreen', type: 'strength' },
+    { time: '4:00 PM', name: 'Cardio', coach: 'Eman', type: 'cardio' },
+    { time: '4:00 PM', name: 'Hyrox', coach: 'Malak', type: 'strength' },
+    { time: '5:00 PM', name: 'Belly Dance (شرقي)', coach: 'Eman', type: 'flow' },
+    { time: '5:00 PM', name: 'Ball Exercises', coach: 'Shahenda', type: 'strength' },
+    { time: '5:00 PM', name: 'Spinning', coach: 'Nada', type: 'cardio' },
+    // ─── Evening (Image 2) ───
+    { time: '6:00 PM', name: 'Zumba', coach: 'Nada', type: 'cardio' },
+    { time: '6:00 PM', name: 'Cardio Boxing', coach: 'Eman', type: 'cardio' },
+    { time: '7:00 PM', name: 'Cross FIT', coach: 'Malak', type: 'strength' },
+    { time: '7:00 PM', name: 'ABS Cardio', coach: 'Shahenda', type: 'cardio' },
+    { time: '7:30 PM', name: 'Pilates', coach: 'Nada', type: 'flow' },
+    { time: '8:30 PM', name: 'Cardio Dance', coach: 'Eman', type: 'cardio' },
+    { time: '8:30 PM', name: 'Sweat and Burn', coach: 'Mona', type: 'cardio' },
+    { time: '8:30 PM', name: 'Lower Body', coach: 'Shahenda', type: 'strength' },
+    { time: '9:30 PM', name: 'Mobility (مرونه)', coach: 'Mona', type: 'recovery' },
+    { time: '9:30 PM', name: 'Glutes (سفلي)', coach: 'Nada', type: 'strength' },
+    { time: '10:30 PM', name: 'Neck + Shoulder', coach: 'Shahenda', type: 'recovery' },
+  ],
+  2: [ // Monday — الاثنين
+    // ─── Morning / Afternoon (Image 1) ───
+    { time: '7:30 AM', name: 'Cardio', coach: 'Nada', type: 'cardio' },
+    { time: '8:30 AM', name: 'Pilates', coach: 'Nada', type: 'flow' },
+    { time: '9:30 AM', name: 'Hiit Toning', coach: 'Nada', type: 'cardio' },
+    { time: '11:00 AM', name: 'Fix + Flex', coach: 'Shahenda', type: 'recovery' },
+    { time: '12:00 PM', name: 'Full Body', coach: 'Mona', type: 'strength' },
+    { time: '1:00 PM', name: 'Fat Burning', coach: 'Nada', type: 'cardio' },
+    { time: '2:00 PM', name: 'Cardio', coach: 'Mona', type: 'cardio' },
+    { time: '3:00 PM', name: 'Upper Body', coach: 'Shahenda', type: 'strength' },
+    { time: '4:00 PM', name: 'Body Pump', coach: 'Shaimaa', type: 'strength' },
+    { time: '5:00 PM', name: 'Stick Class', coach: 'Eman', type: 'recovery' },
+    { time: '5:00 PM', name: 'Taebo + Body Combat', coach: 'Malak', type: 'cardio' },
+    { time: '5:00 PM', name: 'Cardio', coach: 'Areej', type: 'cardio' },
+    // ─── Evening (Image 2) ───
+    { time: '6:00 PM', name: 'In Fit', coach: 'Eman', type: 'cardio' },
+    { time: '6:00 PM', name: 'Lower (سفلي)', coach: 'Malak', type: 'strength' },
+    { time: '6:00 PM', name: 'ABS', coach: 'Shahenda', type: 'strength' },
+    { time: '7:00 PM', name: 'Back Zone', coach: 'Shahenda', type: 'recovery' },
+    { time: '7:00 PM', name: 'Aerobic', coach: 'Shaimaa', type: 'cardio' },
+    { time: '7:30 PM', name: 'Full Body', coach: 'Areej', type: 'strength' },
+    { time: '8:30 PM', name: 'Mobility (مرونه)', coach: 'Eman', type: 'recovery' },
+    { time: '8:30 PM', name: 'Infisal + Kegel', coach: 'Nesreen', type: 'recovery' },
+    { time: '9:30 PM', name: 'Cardio', coach: 'Eman', type: 'cardio' },
+    { time: '9:30 PM', name: 'Full Body', coach: 'Nesreen', type: 'strength' },
+    { time: '10:30 PM', name: 'Lower (سفلي)', coach: 'Areej', type: 'strength' },
+  ],
+  3: [ // Tuesday — الثلاثاء
+    // ─── Morning / Afternoon (Image 1) ───
+    { time: '7:30 AM', name: 'Hiit Cardio', coach: 'Shahenda', type: 'cardio' },
+    { time: '8:30 AM', name: 'ABS', coach: 'Shahenda', type: 'strength' },
+    { time: '9:30 AM', name: 'Recovery (علاج خشونه)', coach: 'Shahenda', type: 'recovery' },
+    { time: '11:00 AM', name: 'Cardio', coach: 'Eman', type: 'cardio' },
+    { time: '12:00 PM', name: 'Arm Workout', coach: 'Nesreen', type: 'strength' },
+    { time: '1:00 PM', name: 'Back Zone', coach: 'Shahenda', type: 'recovery' },
+    { time: '2:00 PM', name: 'Recovery (علاج خشونه)', coach: 'Nesreen', type: 'recovery' },
+    { time: '3:00 PM', name: 'Tabata', coach: 'Eman', type: 'cardio' },
+    { time: '4:00 PM', name: 'G.Fit', coach: 'Nada', type: 'strength' },
+    { time: '4:00 PM', name: 'Cardio Mix', coach: 'Mona', type: 'cardio' },
+    { time: '5:00 PM', name: 'Cardio', coach: 'Shaimaa', type: 'cardio' },
+    { time: '5:00 PM', name: 'Taebo', coach: 'Nada', type: 'cardio' },
+    // ─── Evening (Image 2) ───
+    { time: '6:00 PM', name: 'Zumba', coach: 'Eman', type: 'cardio' },
+    { time: '6:00 PM', name: 'ABS', coach: 'Shaimaa', type: 'strength' },
+    { time: '6:00 PM', name: 'Spine Strength (تقويه العمود)', coach: 'Areej', type: 'recovery' },
+    { time: '7:00 PM', name: 'Full Body', coach: 'Eman', type: 'strength' },
+    { time: '7:00 PM', name: 'Cardio Ball', coach: 'Mona', type: 'cardio' },
+    { time: '7:30 PM', name: 'Roof ABS (السطح)', coach: 'Nada', type: 'strength' },
+    { time: '8:30 PM', name: 'CAF', coach: 'Malak', type: 'strength' },
+    { time: '9:30 PM', name: 'ABS', coach: 'Areej', type: 'strength' },
+    { time: '9:30 PM', name: 'Cardio', coach: 'Malak', type: 'cardio' },
+    { time: '10:30 PM', name: 'Full Body', coach: 'Nada', type: 'strength' },
+  ],
+  4: [ // Wednesday — الأربعاء
+    // ─── Morning / Afternoon (Image 1) ───
+    { time: '7:30 AM', name: 'In Fit', coach: 'Eman', type: 'cardio' },
+    { time: '8:30 AM', name: 'Zumba', coach: 'Eman', type: 'cardio' },
+    { time: '9:30 AM', name: 'Yoga', coach: 'Eman', type: 'flow' },
+    { time: '11:00 AM', name: 'Full Body', coach: 'Nada', type: 'strength' },
+    { time: '12:00 PM', name: 'ABS', coach: 'Malak', type: 'strength' },
+    { time: '1:00 PM', name: 'Cardio', coach: 'Eman', type: 'cardio' },
+    { time: '2:00 PM', name: 'Legs', coach: 'Malak', type: 'strength' },
+    { time: '3:00 PM', name: 'Tabata', coach: 'Nada', type: 'cardio' },
+    { time: '4:00 PM', name: 'Upper Body', coach: 'Nesreen', type: 'strength' },
+    { time: '4:00 PM', name: 'Lower Body', coach: 'Shahenda', type: 'strength' },
+    { time: '5:00 PM', name: 'Full Body', coach: 'Shahenda', type: 'strength' },
+    { time: '5:00 PM', name: 'Pilates', coach: 'Areej', type: 'flow' },
+    // ─── Evening (Image 2) ───
+    { time: '6:00 PM', name: 'Zumba', coach: 'Nada', type: 'cardio' },
+    { time: '6:00 PM', name: 'Bower Battle', coach: 'Mona', type: 'cardio' },
+    { time: '6:00 PM', name: 'Belly Dance (شرقي)', coach: 'Areej', type: 'flow' },
+    { time: '7:00 PM', name: 'Aerobic', coach: 'Nesreen', type: 'cardio' },
+    { time: '7:00 PM', name: 'Running', coach: 'Nada', type: 'cardio' },
+    { time: '7:30 PM', name: 'Swiss Ball', coach: 'Areej', type: 'recovery' },
+    { time: '7:30 PM', name: 'Cardio', coach: 'Shahenda', type: 'cardio' },
+    { time: '8:30 PM', name: 'Infisal + Kegel', coach: 'Shaimaa', type: 'recovery' },
+    { time: '8:30 PM', name: 'Upper Body', coach: 'Shahenda', type: 'strength' },
+    { time: '9:30 PM', name: 'Mobility (مرونه)', coach: 'Areej', type: 'recovery' },
+    { time: '9:30 PM', name: 'Glutes (سفلي)', coach: 'Shaimaa', type: 'strength' },
+    { time: '10:30 PM', name: 'Aerobic', coach: 'Mona', type: 'cardio' },
+  ],
+  5: [ // Thursday — الخميس
+    // ─── Morning / Afternoon (Image 1) ───
+    { time: '7:30 AM', name: 'Cardio', coach: 'Areej', type: 'cardio' },
+    { time: '8:30 AM', name: 'Pilates', coach: 'Areej', type: 'flow' },
+    { time: '9:30 AM', name: 'Spine Strength (تقويه العمود)', coach: 'Areej', type: 'recovery' },
+    { time: '12:00 PM', name: 'Cardio', coach: 'Shaimaa', type: 'cardio' },
+    { time: '1:00 PM', name: 'Upper Body (علوي)', coach: 'Areej', type: 'strength' },
+    { time: '2:00 PM', name: 'Core', coach: 'Shaimaa', type: 'strength' },
+    { time: '3:00 PM', name: 'Recovery (علاج خشونه)', coach: 'Nesreen', type: 'recovery' },
+    { time: '4:00 PM', name: 'RPM Spinning', coach: 'Malak', type: 'cardio' },
+    { time: '4:00 PM', name: 'Cardio ABS', coach: 'Eman', type: 'cardio' },
+    { time: '5:00 PM', name: 'Pilates', coach: 'Nada', type: 'flow' },
+    { time: '5:00 PM', name: 'Upper Body', coach: 'Shahenda', type: 'strength' },
+    { time: '5:00 PM', name: 'Stick Class', coach: 'Eman', type: 'recovery' },
+    { time: '5:00 PM', name: 'ABS Outdoor', coach: 'Nesreen', type: 'strength' },
+    // ─── Evening (Image 2) ───
+    { time: '6:00 PM', name: 'Cardio', coach: 'Nada', type: 'cardio' },
+    { time: '6:00 PM', name: 'Back Zone', coach: 'Shahenda', type: 'recovery' },
+    { time: '7:00 PM', name: 'CAF', coach: 'Malak', type: 'strength' },
+    { time: '7:30 PM', name: 'Core', coach: 'Nada', type: 'strength' },
+    { time: '7:30 PM', name: 'Full Body', coach: 'Eman', type: 'strength' },
+    { time: '8:30 PM', name: 'Tabata', coach: 'Nada', type: 'cardio' },
+    { time: '8:30 PM', name: 'Neck + Shoulder', coach: 'Shahenda', type: 'recovery' },
+    { time: '8:30 PM', name: 'Cardio Machine', coach: 'Mona', type: 'cardio' },
+    { time: '9:30 PM', name: 'Yoga', coach: 'Eman', type: 'flow' },
+    { time: '9:30 PM', name: 'Static', coach: 'Shahenda', type: 'recovery' },
+    { time: '10:30 PM', name: 'Mobility (مرونه)', coach: 'Mona', type: 'recovery' },
+  ],
+  6: [ // Friday — الجمعة
+    { time: '8:30 AM', name: 'ABS + Infisal', coach: 'Areej', type: 'strength' },
+    { time: '4:00 PM', name: 'Full Body', coach: 'Areej', type: 'strength' },
+    { time: '6:00 PM – 8:00 PM', name: 'Iron Room (حديد)', coach: 'Areej', type: 'strength' },
+    { time: '2:00 PM – 4:00 PM', name: 'Iron Room (حديد)', coach: 'Areej', type: 'strength' },
+  ],
+  7: [ // Saturday — السبت
+    // ─── Morning / Afternoon (Image 1) ───
+    { time: '7:30 AM', name: 'Full Body', coach: 'Nada', type: 'strength' },
+    { time: '8:30 AM', name: 'Tabata', coach: 'Nada', type: 'cardio' },
+    { time: '9:30 AM', name: 'ABS', coach: 'Nada', type: 'strength' },
+    { time: '12:00 PM', name: 'CAF', coach: 'Malak', type: 'strength' },
+    { time: '1:00 PM', name: 'Hiit Toning', coach: 'Nada', type: 'cardio' },
+    { time: '2:00 PM', name: 'ABS', coach: 'Malak', type: 'strength' },
+    { time: '3:00 PM', name: 'Recovery (علاج خشونه)', coach: 'Nesreen', type: 'recovery' },
+    { time: '4:00 PM', name: 'Full Body', coach: 'Eman', type: 'strength' },
+    { time: '5:00 PM', name: 'Back Zone', coach: 'Shahenda', type: 'recovery' },
+    { time: '5:00 PM', name: 'Cardio', coach: 'Eman', type: 'cardio' },
+    { time: '5:00 PM', name: 'Cross FIT', coach: 'Mona', type: 'strength' },
+    // ─── Evening (Image 2) ───
+    { time: '6:00 PM', name: 'She Dance (السطح)', coach: 'Shahenda', type: 'flow' },
+    { time: '6:00 PM', name: 'Core + Care', coach: 'Mona', type: 'recovery' },
+    { time: '7:00 PM', name: 'Aerobic', coach: 'Nesreen', type: 'cardio' },
+    { time: '7:30 PM', name: 'Mobility (مرونه)', coach: 'Eman', type: 'recovery' },
+    { time: '7:30 PM', name: 'Lower Body', coach: 'Shahenda', type: 'strength' },
+    { time: '8:30 PM', name: 'ABS', coach: 'Eman', type: 'strength' },
+    { time: '8:30 PM', name: 'Tabata', coach: 'Shaimaa', type: 'cardio' },
+    { time: '9:30 PM', name: 'ABS', coach: 'Shaimaa', type: 'strength' },
+    { time: '10:30 PM', name: 'Static', coach: 'Shahenda', type: 'recovery' },
+  ],
+};
+
+// SEED from PDF — remapped to new schedule (Mon Glutes / Tue Upper / Wed Lower)
+const SEED = {
+  'week-1': {
+    bodyweight: { 2: 51.8 },
+    weights: {
+      2: { 'Leg Press': '10', 'Hip Thrust': '15', 'Romanian Deadlift': '24', 'Bulgarian Split Squat': '16', 'Glute Kickback': '6.8', 'Hip Abduction': '63', 'Standing Calf Raise': '30.4' },
+      3: { 'Chest Press': '14', 'Lat Pulldown': '23', 'Kelso Shrugs': '11', 'Shoulder Press': '14', 'Lateral Raise': '4', 'Bicep Curl': '4', 'Tricep Pushdown': '7.5' },
+      4: { 'Leg Press': '20', 'Leg Extension': '34', 'Leg Curl': '23', 'Hip Thrust': '20', 'Walking Lunges': '24', 'Hip Adduction': '32' },
+    },
+    classes: {}
+  },
+  'week-2': {
+    bodyweight: {},
+    weights: {
+      2: { 'Leg Press': '17.5', 'Hip Thrust': '22.5', 'Romanian Deadlift': '25', 'Bulgarian Split Squat': '16', 'Glute Kickback': '9', 'Hip Abduction': '59', 'Standing Calf Raise': '30.4' },
+      3: { 'Chest Press': '14', 'Lat Pulldown': '25', 'Kelso Shrugs': '18', 'Shoulder Press': '14', 'Lateral Raise': '5', 'Bicep Curl': '5', 'Tricep Pushdown': '7.5' },
+      4: { 'Leg Press': '20', 'Leg Extension': '34', 'Leg Curl': '34.1', 'Hip Thrust': '20', 'Walking Lunges': '24', 'Hip Adduction': '34' },
+    },
+    classes: {}
+  },
+  'week-3': {
+    bodyweight: {},
+    weights: {
+      2: { 'Leg Press': '20', 'Hip Thrust': '25', 'Romanian Deadlift': '28', 'Bulgarian Split Squat': '16', 'Glute Kickback': '6.8', 'Standing Calf Raise': '30.4' },
+      3: { 'Chest Press': '14', 'Lat Pulldown': '25', 'Kelso Shrugs': '18', 'Shoulder Press': '14', 'Lateral Raise': '4', 'Bicep Curl': '4', 'Tricep Pushdown': '6.8' },
+      4: {},
+    },
+    classes: {}
+  }
+};
+
+// STATE
+let state = loadState();
+let currentWeek = Object.keys(state.weeks).at(-1) || 'week-1';
+let currentDay = 1;
+let classGridOpen = false;
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('atelier-v5');
+    if (s) {
+      const parsed = JSON.parse(s);
+      Object.values(parsed.weeks).forEach(w => { if (!w.classes) w.classes = {}; });
+      return parsed;
+    }
+  } catch(e) {}
+  return { weeks: JSON.parse(JSON.stringify(SEED)), weekCount: 3 };
+}
+
+function saveState() { try { localStorage.setItem('atelier-v5', JSON.stringify(state)); } catch(e) {} }
+
+function ensureWeek(wk) {
+  if (!state.weeks[wk]) state.weeks[wk] = { bodyweight: {}, weights: {}, classes: {} };
+  if (!state.weeks[wk].weights) state.weeks[wk].weights = {};
+  if (!state.weeks[wk].bodyweight) state.weeks[wk].bodyweight = {};
+  if (!state.weeks[wk].classes) state.weeks[wk].classes = {};
+}
+
+function getWeight(wk, day, exName) {
+  ensureWeek(wk);
+  return (state.weeks[wk].weights[day] || {})[exName] || '';
+}
+
+function getPrevWeight(day, exName) {
+  const weeks = Object.keys(state.weeks);
+  const idx = weeks.indexOf(currentWeek);
+  if (idx <= 0) return null;
+  const prevWk = weeks[idx - 1];
+  return (state.weeks[prevWk].weights[day] || {})[exName] || null;
+}
+
+function getSelectedClass() {
+  ensureWeek(currentWeek);
+  return state.weeks[currentWeek].classes[currentDay] || null;
+}
+
+// RENDER
+function render() {
+  renderHeader(); renderWeekNav(); renderDayRow();
+  renderStats(); renderClassPanel(); renderBW(); renderSession();
+}
+
+function renderHeader() {
+  const d = new Date();
+  document.getElementById('todayDate').textContent =
+    d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('weekMeta').textContent =
+    `${currentWeek.replace('week-','Week ')} · ${PROGRAM[currentDay].label}`;
+}
+
+function renderWeekNav() {
+  const nav = document.getElementById('weekNav');
+  const weeks = Object.keys(state.weeks);
+  nav.innerHTML = weeks.map((wk, i) => {
+    const num = String(i+1).padStart(2, '0');
+    return `<button class="week-pill ${wk===currentWeek?'active':''}" onclick="selectWeek('${wk}')">Week ${num}</button>`;
+  }).join('') + `<button class="add-week" onclick="addWeek()">+ Add Week</button>`;
+}
+
+function renderDayRow() {
+  const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const row = document.getElementById('dayRow');
+  ensureWeek(currentWeek);
+  const wClasses = state.weeks[currentWeek].classes || {};
+  row.innerHTML = Object.entries(PROGRAM).map(([d, info], i) => {
+    const rest = info.focus === 'Rest';
+    const active = parseInt(d) === currentDay;
+    const hasClass = !!wClasses[d];
+    return `<button class="day-chip ${active?'active':''} ${rest?'rest':''}" onclick="selectDay(${d})">
+      <div class="chip-num">${dayLabels[i]}</div>
+      <div class="chip-label">${rest ? 'Rest' : info.focus.split('—')[0].trim()}</div>
+      ${hasClass ? '<span class="booked-dot"></span>' : ''}
+    </button>`;
+  }).join('');
+}
+
+function renderStats() {
+  ensureWeek(currentWeek);
+  const wData = state.weeks[currentWeek];
+  // training days = any PROGRAM day that is not Rest
+  const trainingDays = Object.entries(PROGRAM)
+    .filter(([,info]) => info.focus !== 'Rest')
+    .map(([d]) => parseInt(d));
+
+  let logged = 0, total = 0;
+  trainingDays.forEach(d => {
+    const exs = PROGRAM[d].exercises;
+    total += exs.length;
+    exs.forEach(ex => { if ((wData.weights[d]||{})[ex.name]) logged++; });
+  });
+  const bwEntries = Object.values(wData.bodyweight || {}).filter(Boolean);
+  const latestBW = bwEntries.length ? bwEntries[bwEntries.length-1] : '—';
+  let prs = 0;
+  const weeks = Object.keys(state.weeks);
+  const idx = weeks.indexOf(currentWeek);
+  if (idx > 0) {
+    const prevWk = weeks[idx-1];
+    trainingDays.forEach(d => {
+      PROGRAM[d].exercises.forEach(ex => {
+        const cur = parseFloat((wData.weights[d]||{})[ex.name]);
+        const prev = parseFloat(((state.weeks[prevWk].weights||{})[d]||{})[ex.name]);
+        if (cur && prev && cur > prev) prs++;
+      });
+    });
+  }
+  let volume = 0;
+  trainingDays.forEach(d => {
+    PROGRAM[d].exercises.forEach(ex => {
+      const w = parseFloat((wData.weights[d]||{})[ex.name]);
+      if (w) volume += w;
+    });
+  });
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat">
+      <div class="stat-eyebrow">Sessions Logged</div>
+      <div class="stat-value">${logged}<span class="divider">/</span>${total}</div>
+      <div class="stat-foot">exercises completed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-eyebrow">Bodyweight</div>
+      <div class="stat-value">${latestBW}<span class="stat-unit">kg</span></div>
+      <div class="stat-foot">most recent</div>
+    </div>
+    <div class="stat">
+      <div class="stat-eyebrow">Personal Records</div>
+      <div class="stat-value highlight">${prs}</div>
+      <div class="stat-foot">surpassing last week</div>
+    </div>
+    <div class="stat">
+      <div class="stat-eyebrow">Total Tonnage</div>
+      <div class="stat-value">${volume.toFixed(0)}<span class="stat-unit">kg</span></div>
+      <div class="stat-foot">moved this week</div>
+    </div>
+  `;
+}
+
+function renderClassPanel() {
+  const sel = getSelectedClass();
+  const display = document.getElementById('selectedClassDisplay');
+
+  if (sel) {
+    display.innerHTML = `
+      <div class="selected-class">
+        <div class="selected-class-info">
+          <span class="selected-class-time">${sel.time}</span>
+          <span class="selected-class-name">${sel.name}</span>
+          <span class="selected-class-coach">with ${sel.coach}</span>
+        </div>
+        <button class="clear-class" onclick="clearClass()">Remove</button>
+      </div>`;
+  } else {
+    display.innerHTML = `
+      <div class="selected-class empty">
+        <span class="selected-class-empty-text">No class booked for ${PROGRAM[currentDay].label.toLowerCase()} — browse the schedule below</span>
+      </div>`;
+  }
+
+  const grid = document.getElementById('classGrid');
+  const classes = CLASS_SCHEDULE[currentDay] || [];
+  if (classes.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;font-family:var(--serif-italic);font-style:italic;color:var(--cream-mute)">No classes scheduled this day</div>`;
+  } else {
+    grid.innerHTML = classes.map((c, i) => {
+      const isSelected = sel && sel.name === c.name && sel.time === c.time && sel.coach === c.coach;
+      return `<div class="class-card ${isSelected?'selected':''}" onclick="selectClass(${i})">
+        <div class="class-card-time">${c.time}</div>
+        <div class="class-card-name">${c.name}</div>
+        <div class="class-card-coach">with ${c.coach}</div>
+        <span class="class-card-type type-${c.type}">${c.type}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderBW() {
+  ensureWeek(currentWeek);
+  const bw = state.weeks[currentWeek].bodyweight || {};
+  const hist = document.getElementById('bwHistory');
+  const entries = Object.entries(bw).filter(([,v]) => v);
+  if (!entries.length) {
+    hist.innerHTML = `<span style="font-family: var(--serif-italic); font-style: italic; color: var(--cream-mute); font-size: 14px;">No measurements yet this week</span>`;
+  } else {
+    hist.innerHTML = entries.map(([day, val]) =>
+      `<div class="bw-entry">
+        <span class="bw-entry-day">Day ${day}</span>
+        <span class="bw-entry-val">${val}<span class="bw-entry-unit">kg</span></span>
+      </div>`
+    ).join('');
+  }
+}
+
+function renderSession() {
+  const day = PROGRAM[currentDay];
+  const c = document.getElementById('sessionContent');
+  if (day.focus === 'Rest') {
+    const sel = getSelectedClass();
+    c.innerHTML = `
+      <div class="rest-page">
+        <div class="ornament">❦</div>
+        <h2>A day of <em>repose</em></h2>
+        <p>No structured weight training today — but the studio is open. Browse the class schedule above to join a session, or rest fully.</p>
+        ${sel ? `<div class="booked-hint">Booked today: <strong>${sel.name}</strong> at ${sel.time} with ${sel.coach}</div>` : ''}
+      </div>`;
+    return;
+  }
+
+  ensureWeek(currentWeek);
+  const completed = day.exercises.filter(ex => getWeight(currentWeek, currentDay, ex.name)).length;
+
+  const rows = day.exercises.map((ex, i) => {
+    const val = getWeight(currentWeek, currentDay, ex.name);
+    const prev = getPrevWeight(currentDay, ex.name);
+    let delta = '';
+    if (prev && val) {
+      const diff = parseFloat(val) - parseFloat(prev);
+      if (diff > 0) delta = `<span class="delta delta-up">+${diff.toFixed(1)}</span>`;
+      else if (diff < 0) delta = `<span class="delta delta-down">${diff.toFixed(1)}</span>`;
+      else delta = `<span class="delta delta-same">—</span>`;
+    }
+    const num = String(i+1).padStart(2, '0');
+    return `
+      <div class="exercise">
+        <div class="ex-num">${num}</div>
+        <div class="ex-info">
+          <h4>${ex.name}</h4>
+          <div class="ex-prescription">${ex.detail} · ${ex.sets} sets × ${ex.reps}</div>
+        </div>
+        <div class="ex-prev">
+          ${prev ? `<div class="ex-prev-label">Last Week</div><div class="ex-prev-val">${prev} kg ${delta}</div>` : '<div style="opacity:0">—</div>'}
+        </div>
+        <div class="ex-input-wrap">
+          <input class="ex-input ${val?'has-value':''}" 
+            type="number" step="0.1" value="${val}" placeholder="—"
+            data-ex="${ex.name}" oninput="handleInput(this)" onfocus="this.select()">
+          <span class="ex-unit">kg</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="session">
+      <div class="session-head">
+        <div class="session-head-left">
+          <h2>${day.label} <em>·</em> ${day.focus.split('—')[0].trim()}</h2>
+          <div class="focus-line">${day.focus.includes('—') ? day.focus.split('—')[1].trim() : 'Full programme'}</div>
+        </div>
+        <div class="session-head-right">
+          <div class="num-large">${completed}<span class="total">/${day.exercises.length}</span></div>
+          <div class="num-label">Logged</div>
+        </div>
+      </div>
+      <div class="exercise-list">${rows}</div>
+      <div class="session-foot">
+        <div class="session-foot-quote">"${day.quote}"</div>
+        <button class="btn-ghost" onclick="saveDay()">Save Session</button>
+      </div>
+    </div>`;
+}
+
+// ACTIONS
+function selectWeek(wk) {
+  currentWeek = wk; classGridOpen = false;
+  document.getElementById('classToggle').textContent='Browse Classes';
+  document.getElementById('classGrid').classList.remove('show');
+  render();
+}
+function selectDay(d) {
+  currentDay = parseInt(d); classGridOpen = false;
+  document.getElementById('classToggle').textContent='Browse Classes';
+  document.getElementById('classGrid').classList.remove('show');
+  render();
+}
+
+function addWeek() {
+  state.weekCount++;
+  const k = `week-${state.weekCount}`;
+  state.weeks[k] = { bodyweight: {}, weights: {}, classes: {} };
+  currentWeek = k;
+  saveState(); render();
+  toast(`Week ${state.weekCount} opened`);
+}
+
+function handleInput(el) {
+  ensureWeek(currentWeek);
+  if (!state.weeks[currentWeek].weights[currentDay])
+    state.weeks[currentWeek].weights[currentDay] = {};
+  state.weeks[currentWeek].weights[currentDay][el.dataset.ex] = el.value;
+  el.classList.toggle('has-value', !!el.value);
+  saveState();
+}
+
+function saveDay() {
+  document.querySelectorAll('.ex-input').forEach(inp => {
+    ensureWeek(currentWeek);
+    if (!state.weeks[currentWeek].weights[currentDay])
+      state.weeks[currentWeek].weights[currentDay] = {};
+    if (inp.value)
+      state.weeks[currentWeek].weights[currentDay][inp.dataset.ex] = inp.value;
+  });
+  saveState(); render();
+  toast('Session committed to record');
+}
+
+function logBodyweight() {
+  const v = document.getElementById('bwInput').value;
+  if (!v) return;
+  ensureWeek(currentWeek);
+  state.weeks[currentWeek].bodyweight[currentDay] = parseFloat(v);
+  document.getElementById('bwInput').value = '';
+  saveState(); render();
+  toast(`Bodyweight noted — ${v} kg`);
+}
+
+function toggleClassGrid() {
+  classGridOpen = !classGridOpen;
+  document.getElementById('classGrid').classList.toggle('show', classGridOpen);
+  document.getElementById('classToggle').textContent = classGridOpen ? 'Hide Schedule' : 'Browse Classes';
+}
+
+function selectClass(idx) {
+  const c = CLASS_SCHEDULE[currentDay][idx];
+  ensureWeek(currentWeek);
+  state.weeks[currentWeek].classes[currentDay] = c;
+  saveState();
+  renderClassPanel();
+  renderDayRow();
+  renderSession();
+  toast(`Class booked — ${c.name} at ${c.time}`);
+}
+
+function clearClass() {
+  ensureWeek(currentWeek);
+  delete state.weeks[currentWeek].classes[currentDay];
+  saveState();
+  renderClassPanel();
+  renderDayRow();
+  renderSession();
+  toast('Class removed');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+render();
+</script>
+</body>
+</html>
